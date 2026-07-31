@@ -1,4 +1,4 @@
-# teton 0.1.0 — GENERATED FILE, DO NOT EDIT IN THE TAP.
+# teton 0.1.1 — GENERATED FILE, DO NOT EDIT IN THE TAP.
 #
 # Rendered from `packaging/homebrew/teton.rb.tmpl` in atelier-fashion/teton-code
 # by `tools/release/render-formula.sh`, and pushed to
@@ -19,25 +19,25 @@
 # resolves equals the tag before it pushes (BR-3) rather than trusting the
 # scanner's heuristic.
 class Teton < Formula
-  desc "Local-first AI coding agent — the teton CLI and its tetond daemon"
+  desc "Local-first AI coding agent — the teton CLI and its teton-code daemon"
   homepage "https://tetoncode.ai"
   license "MIT"
 
   # Prebuilt per-target tarballs, not a source build: reimposing the Rust +
   # cmake toolchain on every install is the burden this formula exists to
-  # remove (REQ-548). Each tarball is flat — `teton`, `tetond`, `LICENSE`,
+  # remove (REQ-548). Each tarball is flat — `teton`, `teton-code`, `LICENSE`,
   # `README.md` at its root — and was built with `--features tetond/llama`, so
   # an installed daemon can always load the model the CLI offers to fetch
   # (BR-2).
   on_macos do
     on_arm do
-      url "https://github.com/atelier-fashion/teton-code/releases/download/v0.1.0/teton-v0.1.0-aarch64-apple-darwin.tar.gz"
-      sha256 "c7fa9d06eb04e33258937000ace4f6bdfef33182e1c522f00edfc5f870f1d0d8"
+      url "https://github.com/atelier-fashion/teton-code/releases/download/v0.1.1/teton-v0.1.1-aarch64-apple-darwin.tar.gz"
+      sha256 "65431868c9d6a02957becc52ed0289a04336b550cbec4ccdffb2535e34b229ab"
     end
 
     on_intel do
-      url "https://github.com/atelier-fashion/teton-code/releases/download/v0.1.0/teton-v0.1.0-x86_64-apple-darwin.tar.gz"
-      sha256 "7a94b13ae2e41aeb226279df7bff25e7b3028a4538c00b01e193b7a9d8b1f755"
+      url "https://github.com/atelier-fashion/teton-code/releases/download/v0.1.1/teton-v0.1.1-x86_64-apple-darwin.tar.gz"
+      sha256 "736dcfaf99ac6a1002d5e1ad3197b22541c0a2a1cdc8f0361706518980370369"
     end
   end
 
@@ -47,15 +47,15 @@ class Teton < Formula
   # (BR-10 — do not claim what the shipped binaries cannot do).
   on_linux do
     on_intel do
-      url "https://github.com/atelier-fashion/teton-code/releases/download/v0.1.0/teton-v0.1.0-x86_64-unknown-linux-gnu.tar.gz"
-      sha256 "82870039524b8c55912ab5c83a2b49dc6e18e30ef587443b7bd15a850dc606a3"
+      url "https://github.com/atelier-fashion/teton-code/releases/download/v0.1.1/teton-v0.1.1-x86_64-unknown-linux-gnu.tar.gz"
+      sha256 "c22d3c50dffefccae76fd38be2bba48eedd0676b99c5a262bd698d713ea27bf5"
     end
   end
 
   def install
-    # BR-1: both binaries, one command. `teton` without `tetond` is a CLI with
+    # BR-1: both binaries, one command. `teton` without `teton-code` is a CLI with
     # nothing to talk to.
-    bin.install "teton", "tetond"
+    bin.install "teton", "teton-code"
 
     # Created here rather than left to launchd: the service below redirects
     # stdout/stderr into this directory, and launchd does not create a missing
@@ -65,14 +65,14 @@ class Teton < Formula
   end
 
   service do
-    # `tetond` runs in the foreground and resolves its own socket, lock and
+    # `teton-code` runs in the foreground and resolves its own socket, lock and
     # state under `~/Library/Application Support/teton`, so launchd needs to
     # pass it nothing. A second instance exits 0 with "already running", which
     # is exactly what keep_alive wants from a restart that raced a live daemon.
-    run [opt_bin/"tetond"]
+    run [opt_bin/"teton-code"]
     keep_alive true
-    log_path var/"log/teton/tetond.log"
-    error_log_path var/"log/teton/tetond.err.log"
+    log_path var/"log/teton/teton-code.log"
+    error_log_path var/"log/teton/teton-code.err.log"
   end
 
   test do
@@ -83,6 +83,6 @@ class Teton < Formula
     # `bump-formula` job (before it pushes the tap), where there is a real
     # launchd service to talk to.
     assert_match version.to_s, shell_output("#{bin}/teton --version")
-    assert_match version.to_s, shell_output("#{bin}/tetond --version")
+    assert_match version.to_s, shell_output("#{bin}/teton-code --version")
   end
 end
