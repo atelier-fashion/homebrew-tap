@@ -1,4 +1,4 @@
-# teton 0.1.13 — GENERATED FILE, DO NOT EDIT IN THE TAP.
+# teton 0.1.14 — GENERATED FILE, DO NOT EDIT IN THE TAP.
 #
 # Rendered from `packaging/homebrew/teton.rb.tmpl` in atelier-fashion/teton-code
 # by `tools/release/render-formula.sh`, and pushed to
@@ -32,13 +32,13 @@ class Teton < Formula
   # macOS: Developer ID signed, team 545BU9G9D6. Linux: unsigned in v1.
   on_macos do
     on_arm do
-      url "https://github.com/atelier-fashion/teton-code/releases/download/v0.1.13/teton-v0.1.13-aarch64-apple-darwin.tar.gz"
-      sha256 "d348a642a95c7c00fb29179ebe1863761cbf74bd983ebe497842798a8b44df99"
+      url "https://github.com/atelier-fashion/teton-code/releases/download/v0.1.14/teton-v0.1.14-aarch64-apple-darwin.tar.gz"
+      sha256 "f3f6a546823c1fbdb5405ef7fe7a460ac09c8ebcca063a5784ac9a210436a686"
     end
 
     on_intel do
-      url "https://github.com/atelier-fashion/teton-code/releases/download/v0.1.13/teton-v0.1.13-x86_64-apple-darwin.tar.gz"
-      sha256 "5ab19e961f166966674b0de785d8fd8c5e7fca7a9281844e20a08ae6dae27e74"
+      url "https://github.com/atelier-fashion/teton-code/releases/download/v0.1.14/teton-v0.1.14-x86_64-apple-darwin.tar.gz"
+      sha256 "d40178f5fb6e999086c6aa72d618db3d6c80bad47595cf6d5f921b5b3850ea08"
     end
   end
 
@@ -48,8 +48,8 @@ class Teton < Formula
   # (BR-10 — do not claim what the shipped binaries cannot do).
   on_linux do
     on_intel do
-      url "https://github.com/atelier-fashion/teton-code/releases/download/v0.1.13/teton-v0.1.13-x86_64-unknown-linux-gnu.tar.gz"
-      sha256 "7fe970f15960da244195d35a943de43faa0d80908e5eeceee51e6d3a5d66426d"
+      url "https://github.com/atelier-fashion/teton-code/releases/download/v0.1.14/teton-v0.1.14-x86_64-unknown-linux-gnu.tar.gz"
+      sha256 "145682616f6bae59f772b6889f623bb20e3c13bba8d626e2a211ff4cbe6cb8fa"
     end
   end
 
@@ -65,15 +65,56 @@ class Teton < Formula
     (var/"log/teton").mkpath
   end
 
+  # OPT-IN ONLY (REQ-565). `brew install` does not register this service; the
+  # default lifetime is on demand — the CLI starts `teton-code` when it needs
+  # one, and the daemon exits with its last client rather than holding the
+  # local model (up to ~17 GB) resident around the clock.
+  #
+  # `brew services start teton` is the explicit always-on choice, and it is the
+  # only path that reaches this block.
   service do
     # `teton-code` runs in the foreground and resolves its own socket, lock and
     # state under `~/Library/Application Support/teton`, so launchd needs to
-    # pass it nothing. A second instance exits 0 with "already running", which
-    # is exactly what keep_alive wants from a restart that raced a live daemon.
-    run [opt_bin/"teton-code"]
-    keep_alive true
+    # pass it nothing else.
+    #
+    # `--shutdown-policy never` is load-bearing, not decoration (REQ-565 BR-5,
+    # OQ-2). It is passed explicitly rather than left to the default because
+    # launchd keep-alive and an exit-on-idle daemon are a flap: the daemon would
+    # exit when the last CLI closed, launchd would restart it, and it would
+    # reload the model — repeatedly, forever. Someone who asked for an always-on
+    # daemon gets one, stated in the plist where it is visible, never inferred
+    # from "was I started by launchd" (LESSON-443).
+    run [opt_bin/"teton-code", "--shutdown-policy", "never"]
+    # Deliberately NO `keep_alive`. Under the `never` policy the daemon does not
+    # self-terminate, so the only thing keep_alive could restart is a crash —
+    # and resurrecting a daemon that just crashed on its own weights is how the
+    # stale-binary and standing-memory harms in REQ-565 came back. `brew
+    # services restart teton` is the deliberate action.
     log_path var/"log/teton/teton-code.log"
     error_log_path var/"log/teton/teton-code.err.log"
+  end
+
+  # REQ-565 AC-6. A formula upgrade cannot unload another formula version's
+  # launchd agent, so an existing `brew services` install keeps its old
+  # always-on daemon until the user stops it once, by hand.
+  def caveats
+    <<~EOS
+      The daemon now runs on demand: `teton` starts `teton-code` when it needs
+      one, and it exits with your last session instead of holding the local
+      model in memory around the clock.
+
+      If you started the daemon with `brew services` before upgrading, run this
+      once to pick up the new lifetime:
+
+        brew services stop teton
+
+      Nothing else changes — the next `teton` command starts a daemon for you.
+
+      To keep a daemon running at all times instead (it will use the memory its
+      model needs, continuously), that is still one command:
+
+        brew services start teton
+    EOS
   end
 
   test do
