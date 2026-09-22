@@ -1,4 +1,4 @@
-# teton 0.1.35 — GENERATED FILE, DO NOT EDIT IN THE TAP.
+# teton 0.1.36 — GENERATED FILE, DO NOT EDIT IN THE TAP.
 #
 # Rendered from `packaging/homebrew/teton.rb.tmpl` in atelier-fashion/teton-code
 # by `tools/release/render-formula.sh`, and pushed to
@@ -32,13 +32,13 @@ class Teton < Formula
   # macOS: Developer ID signed, team 545BU9G9D6. Linux: unsigned in v1.
   on_macos do
     on_arm do
-      url "https://github.com/atelier-fashion/teton-code/releases/download/v0.1.35/teton-v0.1.35-aarch64-apple-darwin.tar.gz"
-      sha256 "9e83d59b5281feaff97916acdfb1d511c0d5f49fca7f1a4b1dbebd39dc8fee2a"
+      url "https://github.com/atelier-fashion/teton-code/releases/download/v0.1.36/teton-v0.1.36-aarch64-apple-darwin.tar.gz"
+      sha256 "83b9ce2fd1226b7deec241deffcf0459cc2d4f6bbb59d5f6d7f8e9a80131c39f"
     end
 
     on_intel do
-      url "https://github.com/atelier-fashion/teton-code/releases/download/v0.1.35/teton-v0.1.35-x86_64-apple-darwin.tar.gz"
-      sha256 "7b81e3b8bb2511b198c78909d1941036d36ffa9581f4c0a0e26607c4f794d5e1"
+      url "https://github.com/atelier-fashion/teton-code/releases/download/v0.1.36/teton-v0.1.36-x86_64-apple-darwin.tar.gz"
+      sha256 "a4a03d7fd97b569d5335ee1c52e1721b6a86d996275a740eb5f3855d22c59386"
     end
   end
 
@@ -48,8 +48,8 @@ class Teton < Formula
   # (BR-10 — do not claim what the shipped binaries cannot do).
   on_linux do
     on_intel do
-      url "https://github.com/atelier-fashion/teton-code/releases/download/v0.1.35/teton-v0.1.35-x86_64-unknown-linux-gnu.tar.gz"
-      sha256 "366dde99ade65431941d2ce4a8abe155be8c5079545f18126edd55c4d3eb9ca6"
+      url "https://github.com/atelier-fashion/teton-code/releases/download/v0.1.36/teton-v0.1.36-x86_64-unknown-linux-gnu.tar.gz"
+      sha256 "7e73dd5707beefeb420f23cba62851df25254696356d50b48338f535c0f3e923"
     end
   end
 
